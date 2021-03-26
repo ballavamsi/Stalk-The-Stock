@@ -1,68 +1,49 @@
 <template>
   <div class="grid">
-    <vs-row>
+    <vs-row :loaded="getStocks">
       <vs-col class="pd-10" vs-type="flex" vs-justify="center" vs-align="center" w="3">
         <SearchStock></SearchStock>
       </vs-col>
-      <vs-col class="pd-10" vs-type="flex" vs-justify="center" vs-align="center" w="9"> 75% </vs-col>
-      <!--Old Code-->
-      <!--<vs-col w="5">
-        <v-select
-          label="name"
-          :filterable="false"
-          :options="options"
-          @search="onSearch"
-          @selected="optionSelected">
-          <template slot="no-options"> Search Stocks.. </template>
-          <template slot="option" slot-scope="option">
-            <div class="">
-              <template>
-                <b>{{ option["1. symbol"] }}</b> <br />
-                <em>{{ option["2. name"] }}</em>
-              </template>
-            </div>
-          </template>
-          <template slot="selected-option" slot-scope="option">
-            <div class="selected">
-              <template>
-                <b>{{ option["1. symbol"] }}</b> <br />
-                <em>{{ option["2. name"] }}</em>
-              </template>
-            </div>
-          </template>
-        </v-select>
-      </vs-col>-->
+      <vs-col class="pd-10" vs-type="auto" vs-justify="center" vs-align="center" w="9">
+        <div>
+          <v-container grid-list-md text-xs-center>
+            <v-layout row wrap left>
+              <v-flex v-for="(item, index) in stalkedStocks" v-bind:key="index" max-width="250px">
+                <vs-card class="pb-4" style="width: 250px">
+                  <template #img>
+                    <h2>{{ item.symbol }}</h2>
+                  </template>
+                  <template #title>
+                    <h3 style="color:green">{{(item.price =='Unable to load' ? 'N/A' : item.price)}}</h3>
+                  </template>
+                  <template #text>
+                    <div>
+                      <p style="display: none">Max Price: {{ index }}</p>
+                      <p><b>Name : </b>{{ item.name }}</p>
+                      <p><b>Min Price: </b>{{ item.min }}</p>
+                      <p><b>Max Price: </b>{{ item.max }}</p>
+                    </div>
+                  </template>
+                  <template #interactions>
+                    <vs-button class="btn-chat d-none" shadow primary>
+                      <i class="bx bx-chat"></i>
+                      <span class="span"> {{ item.price }} </span>
+                    </vs-button>
+                  </template>
+                </vs-card>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </div>
+      </vs-col>
     </vs-row>
   </div>
 </template>
 
 <style>
-.pd-10{
-    padding:10px;
+.pd-10 {
+  padding: 10px;
 }
-/*
-.d-center {
-  display: flex;
-  align-items: center;
-}
-
-.v-select .dropdown li {
-  border-bottom: 1px solid rgba(112, 128, 144, 0.1);
-}
-
-.v-select .dropdown li:last-child {
-  border-bottom: none;
-}
-
-.v-select .dropdown li a {
-  padding: 10px 20px;
-  width: 100%;
-  font: 400 13.3333px Arial;
-  color: white;
-}
-
-.v-select .dropdown-menu .active > a {
-}*/
 </style>
 
 <script>
@@ -75,28 +56,32 @@ export default {
   },
   data: () => ({
     options: [],
+    stalkedStocks: [],
   }),
+  created() {
+    this.getStocks();
+    setInterval(() => {
+      this.getStocks();
+    }, 20000);
+  },
   methods: {
-    // onSearch(search, loading) {
-    //   if (search.length) {
-    //     loading(true);
-    //     this.search(loading, search, this);
-    //   }
-    // },
-    // search: _.debounce((loading, search, vm) => {
-    //   fetch(
-    //     `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${escape(
-    //       search
-    //     )}&apikey=L13ZZ6OUR0KJMBTT`
-    //   ).then((res) => {
-    //     res.json().then((json) => (vm.options = json.bestMatches));
-    //     loading(false);
-    //   });
-    // }, 350),
-    // optionSelected: function(label) {
-    //     //receive the label of the value selected (the label shown in the select, or an empty string)
-    //     console.error(label);
-    // },
+    getStocks() {
+      if (localStorage.getItem("stalkedStocks")) {
+        try {
+          this.stalkedStocks = JSON.parse(localStorage.getItem("stalkedStocks"));
+        } catch (e) {
+          localStorage.removeItem("stalkedStocks");
+        }
+      }
+    },
+    removeStock(x) {
+      this.stalkedStocks.splice(x, 1);
+      this.saveStocks();
+    },
+    saveStocks() {
+      const parsed = JSON.stringify(this.stalkedStocks);
+      localStorage.setItem("stalkedStocks", parsed);
+    },
   },
 };
 //L13ZZ6OUR0KJMBTT
