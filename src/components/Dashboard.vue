@@ -62,7 +62,7 @@ export default {
     this.getStocks();
     setInterval(() => {
       this.getStocks();
-    }, 20000);
+    }, 1000);
   },
   methods: {
     getStocks() {
