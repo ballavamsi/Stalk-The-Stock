@@ -10,16 +10,6 @@
         <vs-navbar-item :active="active == 'about-us'" id="about-us">
           About Us
         </vs-navbar-item>
-        <!--<vs-navbar-item :active="active == 'components'" id="components">
-          Components
-        </vs-navbar-item>
-        <vs-navbar-item :active="active == 'license'" id="license">
-          license
-        </vs-navbar-item>-->
-        <!--<template #right>
-          <vs-button flat >Login</vs-button>
-          <vs-button>Get Started</vs-button>
-        </template>-->
       </vs-navbar>
       <div class="square" style="height:100vh;padding-top:100px">
         <Dashboard></Dashboard>

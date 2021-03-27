@@ -106,6 +106,7 @@
 }
 </style>
 <script>
+import { messageService } from "../services/message.service";
 export default {
   name: "SearchStock",
   data: () => ({
@@ -138,7 +139,7 @@ export default {
           value: this.model[key] || "n/a",
         };
       });
-      console.log(fieldsData);
+      //console.log(fieldsData);
       return fieldsData;
     },
     items() {
@@ -156,6 +157,11 @@ export default {
     },
   },
   methods: {
+    clearValues: function () {
+      this.minvalue = 0;
+      this.maxvalue = 0;
+      this.model = null;
+    },
     saveStockTrigger: function () {
       let data = {
         symbol: this.model.Symbol,
@@ -164,15 +170,17 @@ export default {
         max: this.maxvalue,
         price: this.currentStockPrice,
       };
-      this.stalkedStocks.push(data);
-      this.saveStocks();
-      this.minvalue = 0;
-      this.maxvalue = 0;
-      this.model = null;
+      this.saveStocks(data);
+      this.clearValues();
     },
-    saveStocks() {
-      const parsed = JSON.stringify(this.stalkedStocks);
+    saveStocks(data) {
+      //adding to local storage
+      let stocksInStorage = JSON.parse(localStorage.getItem("stalkedStocks"));
+      stocksInStorage.push(data);
+      const parsed = JSON.stringify(stocksInStorage);
       localStorage.setItem("stalkedStocks", parsed);
+
+      messageService.addstock(data);
     },
     getStockPrice(val) {
       fetch(
@@ -183,7 +191,7 @@ export default {
         .then((res) => res.json())
         .then((res) => {
           let data = res["Global Quote"];
-          console.log(data);
+          //console.log(data);
           let Price = data["05. price"];
           this.currentStockPrice = Price == 0 ? "Unable to load right now" : Price;
         })
@@ -195,7 +203,8 @@ export default {
   },
   watch: {
     search(val) {
-      console.log(val);
+      //console.log(val);
+      if (val == null || val == undefined || val == "") return;
       // Items have already been loaded
       //if (this.items.length > 0) return;
 
@@ -228,9 +237,9 @@ export default {
     },
     model(val, oldval) {
       //watch you code here
-      console.log(oldval);
-      if(val){
-        this.getStockPrice(val.symbol);
+      //console.log(oldval);
+      if (val != undefined && val != oldval) {
+        this.getStockPrice(val.Symbol);
       }
     },
   },
